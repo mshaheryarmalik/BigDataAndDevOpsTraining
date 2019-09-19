@@ -1,0 +1,71 @@
+{
+    "pipeline": {
+        "name": "CodePipelineByShaheryar-CrossAccount",
+        "roleArn": "arn:aws:iam::692560313237:role/service-role/CodePipelineByShaheryar-CrossAccount",
+        "artifactStore": {
+            "type": "S3",
+            "location": "codepipeline-us-east-1-shaheryar",
+            "encryptionKey": {
+                "id": "arn:aws:kms:us-east-1:692560313237:key/4ee9b865-7601-41b3-b22f-73ad0ce2a214",
+                "type": "KMS"
+            }
+        },
+        "stages": [
+            {
+                "name": "Source",
+                "actions": [
+                    {
+                        "name": "Source",
+                        "actionTypeId": {
+                            "category": "Source",
+                            "owner": "AWS",
+                            "provider": "CodeCommit",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "BranchName": "master",
+                            "PollForSourceChanges": "false",
+                            "RepositoryName": "cross-account-repo-sh"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [],
+                        "region": "us-east-1"
+                    }
+                ]
+            },
+            {
+                "name": "Deploy",
+                "actions": [
+                    {
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "name": "ExternalDeploy",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "version": "1",
+                            "provider": "CodeDeploy"
+                        },
+                        "outputArtifacts": [],
+                        "configuration": {
+                            "ApplicationName": "AhmadCodeDeployApplication",
+                            "DeploymentGroupName": "AhmadCodeDeployApplicationGroup"
+                        },
+                        "runOrder": 1,
+                        "roleArn": "arn:aws:iam::373281343701:role/AhmadCrossAccountRole",
+                        "region": "us-east-1"
+					}
+                ]
+            }
+        ],
+        "version": 1
+    }
+}

@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CFT that creates CodeCommit Repo, policies for repository and attach them to Groups.
+
+Parameters:
+  PassShU1:
+    NoEcho: 'true'
+    Type: String
+    Description: New account password for First User
+    MinLength: '1'
+    MaxLength: '20'
+    ConstraintDescription: The password must be between 1 and 20 characters
+  
+  PassShU2:
+    NoEcho: 'true'
+    Type: String
+    Description: New account password for Second User
+    MinLength: '1'
+    MaxLength: '20'
+    ConstraintDescription: The password must be between 1 and 20 characters
+
+
+Resources:
+  shaheryarDev:
+    Type: AWS::IAM::Group
+  
+  shaheryarSDev:
+    Type: AWS::IAM::Group
+    
+  shaheryarU1:
+    Type: AWS::IAM::User
+    Properties:
+      LoginProfile:
+        Password: !Ref 'PassShU1'
+  shaheryarU2:
+    Type: AWS::IAM::User
+    Properties:
+      LoginProfile:
+        Password: !Ref 'PassShU2'
+
+  Users:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref 'shaheryarDev'
+      Users: [!Ref 'shaheryarU1']
+  
+  SDevUsers:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref 'shaheryarSDev'
+      Users: [!Ref 'shaheryarU2']
+
+  ShaheryarRepo:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryDescription: "This is repository to implement gitflow architecture"
+      RepositoryName: "ShaheryarRepo"
+      Code:
+       S3:
+        Bucket: "shaheryar-malik"
+        Key: "Code.zip"
+    
+
+  DevPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "DevPolicy"
+      PolicyDocument:
+        Statement:
+        
+        - Effect: Deny
+          Action: ['codecommit:GitPush','codecommit:DeleteBranch','codecommit:PutFile','codecommit:Merge*']
+          Resource: !GetAtt ShaheryarRepo.Arn
+          Condition:
+           StringEqualsIfExists:
+            codecommit:References:
+            - refs/heads/master
+            - refs/heads/prod
+            - refs/heads/Stg
+            - refs/heads/develop
+           'Null':
+              codecommit:References: false
+        - Effect: Allow
+          Action: "*"
+          Resource: !GetAtt ShaheryarRepo.Arn
+      Groups: [!Ref 'shaheryarDev']
+      
+  SDevPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "SDevPolicy"
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: "*"
+          Resource: !GetAtt ShaheryarRepo.Arn
+      Groups: [!Ref 'shaheryarSDev']
+
+  CFNKeysU1:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref 'shaheryarU1'
+  CFNKeysU2:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref 'shaheryarU2'
+Outputs:
+  AccessKeyU1:
+    Value: !Ref 'CFNKeysU1'
+    Description: AWSAccessKeyId of first user
+  SecretKeyU1:
+    Value: !GetAtt [CFNKeysU1, SecretAccessKey]
+    Description: AWSSecretAccessKey of first user
+  
+  AccessKeyU2:
+    Value: !Ref 'CFNKeysU2'
+    Description: AWSAccessKeyId of new user
+  SecretKeyU2:
+    Value: !GetAtt [CFNKeysU2, SecretAccessKey]
+    Description: AWSSecretAccessKey of second user

@@ -1,0 +1,48 @@
+---
+Resources:
+    pipeline:
+      Type: AWS::CodePipeline::Pipeline 
+      Properties: 
+          Name: CodePipelineByShaheryar-CrossAccount-1
+          RoleArn: arn:aws:iam::692560313237:role/service-role/CodePipelineByShaheryar-CrossAccount
+          ArtifactStore:
+            Type: S3
+            Location: codepipeline-us-east-1-shaheryar
+            EncryptionKey:
+              Id: arn:aws:kms:us-east-1:692560313237:key/4ee9b865-7601-41b3-b22f-73ad0ce2a214
+              Type: KMS
+          Stages:
+          - Name: Source
+            Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: '1'
+              RunOrder: 1
+              Configuration:
+                BranchName: master
+                PollForSourceChanges: 'false'
+                RepositoryName: cross-account-repo-sh
+              OutputArtifacts:
+              - Name: SourceArtifact
+              InputArtifacts: []
+              Region: us-east-1
+          - Name: Deploy
+            Actions:
+            - Name: ExternalDeploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeploy
+                Version: '1'
+              RunOrder: 1
+              Configuration:
+                ApplicationName: AhmadCodeDeployApplication
+                DeploymentGroupName: AhmadCodeDeployApplicationGroup
+              OutputArtifacts: []
+              InputArtifacts:
+              - Name: SourceArtifact
+              RoleArn: arn:aws:iam::373281343701:role/AhmadCrossAccountRole
+              Region: us-east-1

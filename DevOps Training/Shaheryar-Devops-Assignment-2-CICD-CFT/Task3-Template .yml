@@ -1,0 +1,86 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  BranchName:
+    Description: CodeCommit branch name
+    Type: String
+    Default: master
+  RepositoryName:
+    Description: CodeComit repository name
+    Type: String
+    Default: shaheryar-repo
+ 
+Resources:
+  ShaheryarCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: ShaheryarCodeBuildProject
+      ServiceRole: "arn:aws:iam::692560313237:role/service-role/shaheryar-codebuild-service-role-task-1"
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+      Source:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 10
+      
+      
+  AppPipeline:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      Name: ShaheryarCodePipeline
+      RoleArn: "arn:aws:iam::692560313237:role/service-role/AWSCodePipelineServiceRole-us-east-1-shaheryar-task1-pipeline"
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: CodeCommit
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: CodeCommit
+              OutputArtifacts:
+                - Name: SourceFiles
+              Configuration:
+                BranchName: !Ref BranchName
+                RepositoryName: !Ref RepositoryName
+                PollForSourceChanges: false
+              RunOrder: 1
+        - Name: CodeBuild
+          Actions:
+            - Name: Build
+              InputArtifacts:
+                - Name: SourceFiles
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputArtifacts:
+                - Name: CodebuildFiles
+              Configuration:
+                ProjectName: ShaheryarCodeBuildProject
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              InputArtifacts:
+                - Name: CodebuildFiles
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                RoleArn: "arn:aws:iam::692560313237:role/shaheryar-cloudformation-role"
+                StackName: shaheryar-stack4
+                Capabilities: CAPABILITY_IAM
+                TemplateConfiguration: CodebuildFiles::conf.json
+                TemplatePath: CodebuildFiles::shaheryar-packaged-template.yml
+              RunOrder: 1
+      ArtifactStore:
+         Type: S3
+         Location: shaheryar-malik-devops 
