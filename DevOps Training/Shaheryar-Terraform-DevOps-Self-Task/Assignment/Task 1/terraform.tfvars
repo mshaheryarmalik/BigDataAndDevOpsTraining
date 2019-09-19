@@ -1,0 +1,11 @@
+region="us-east-1"
+availabilityZone="us-east-1a"
+instanceTenancy="default"
+dnsSupport=true
+dnsHostNames=true
+vpcCIDRblock="10.0.0.0/16"
+PublicSubnetCIDRblock1="10.0.1.0/24"
+PublicSubnetCIDRblock2="10.0.2.0/24"
+PrivateSubnetCIDRblock1="10.0.3.0/24"
+PrivateSubnetCIDRblock2="10.0.4.0/24"
+mapPublicIP=true

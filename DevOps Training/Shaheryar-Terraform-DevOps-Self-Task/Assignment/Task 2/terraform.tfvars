@@ -1,0 +1,5 @@
+region="us-east-1"
+vpc_id="vpc-0f0e4986e8eb44c7c"
+publicSubnetId="subnet-04db63619dffc549c"
+privateSubnetId="subnet-0956834b320606ab7"
+securityGroupId="sg-0b5e689c4762cbd5f"
