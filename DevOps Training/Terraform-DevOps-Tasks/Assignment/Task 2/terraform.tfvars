@@ -1,5 +1,13 @@
 region="us-east-1"
-vpc_id="vpc-0f0e4986e8eb44c7c"
-publicSubnetId="subnet-04db63619dffc549c"
-privateSubnetId="subnet-0956834b320606ab7"
-securityGroupId="sg-0b5e689c4762cbd5f"
+availabilityZone="us-east-1a"
+instanceTenancy="default"
+dnsSupport=true
+dnsHostNames=true
+vpcCIDRblock="10.0.0.0/16"
+PublicSubnetCIDRblock1="10.0.1.0/24"
+PublicSubnetCIDRblock2="10.0.2.0/24"
+PrivateSubnetCIDRblock1="10.0.3.0/24"
+PrivateSubnetCIDRblock2="10.0.4.0/24"
+mapPublicIP=true
+ingressCIDRblock=["0.0.0.0/0"]
+destinationCIDRblock="0.0.0.0/0"

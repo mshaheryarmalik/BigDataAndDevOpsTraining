@@ -1,21 +1,45 @@
 # variables.tf
+
 variable "region" {
  default = "us-east-1"
 }
-
-variable "publicSubnetId" {
-	default = "subnet-04db63619dffc549c"
+variable "availabilityZone" {
+        default = "us-east-1a"
+}
+variable "instanceTenancy" {
+ default = "default"
+}
+variable "dnsSupport" {
+ default = true
+}
+variable "dnsHostNames" {
+        default = true
+}
+variable "vpcCIDRblock" {
+ default = "10.0.0.0/16"
+}
+variable "PublicSubnetCIDRblock1" {
+        default = "10.0.1.0/24"
+}
+variable "PublicSubnetCIDRblock2" {
+        default = "10.0.2.0/24"
+}
+variable "PrivateSubnetCIDRblock1" {
+        default = "10.0.3.0/24"
+}
+variable "PrivateSubnetCIDRblock2" {
+        default = "10.0.4.0/24"
+}
+variable "mapPublicIP" {
+        default = true
+}
+variable "ingressCIDRblock" {
+        type = "list"
+        default = [ "0.0.0.0/0" ]
 }
 
-variable "privateSubnetId" {
-	default = "subnet-0956834b320606ab7"
+variable "destinationCIDRblock" {
+        default = "0.0.0.0/0"
 }
 
-variable "securityGroupId" {
-	default = "sg-0b5e689c4762cbd5f"
-}
-
-variable "vpc_id" {
-	default = "vpc-0f0e4986e8eb44c7c"
-}
 # end of variables.tf
